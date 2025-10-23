@@ -1,0 +1,258 @@
+{
+  "name": "knowledge-forge",
+  "displayName": "KnowledgeForge",
+  "description": "Tu Aula del Conocimiento personal - Genera roadmaps personalizados basados en tu CV",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Education",
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:knowledgeforge.openAula",
+    "onCommand:knowledgeforge.openLearningMode",
+    "onCommand:knowledgeforge.configureApiKey",
+    "onCommand:knowledgeforge.changeProvider",
+    "onCommand:knowledgeforge.showApiKeyInstructions",
+    "onCommand:knowledgeforge.refreshRoadmap",
+    "onCommand:knowledgeforge.showProjectStatus",
+    "onCommand:knowledgeforge.showBadges",
+    "onCommand:knowledgeforge.showDashboard",
+    "onCommand:knowledgeforge.reviewTask",
+    "onCommand:knowledgeforge.showCurrentTask",
+    "onCommand:knowledgeforge.completeTask",
+    "onCommand:knowledgeforge.showLearningResources",
+    "onCommand:knowledgeforge.explainCode",
+    "onCommand:knowledgeforge.createRoadmap",
+    "onCommand:knowledgeforge.listRoadmaps",
+    "onCommand:knowledgeforge.cloneRoadmap",
+    "onCommand:knowledgeforge.renameRoadmap",
+    "onCommand:knowledgeforge.deleteRoadmap",
+    "onCommand:knowledgeforge.generateNextPhase",
+    "onCommand:knowledgeforge.activateRoadmap",
+    "onCommand:knowledgeforge.nextTask",
+    "onCommand:knowledgeforge.shareProgress",
+    "onView:knowledgeforgeRoadmap"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "knowledgeforge.openAula",
+        "title": "KnowledgeForge: Abrir Aula"
+      },
+      {
+        "command": "knowledgeforge.openLearningMode",
+        "title": "KnowledgeForge: 🚀 Modo Aprendizaje (Interactivo)",
+        "icon": "$(rocket)"
+      },
+      {
+        "command": "knowledgeforge.configureApiKey",
+        "title": "KnowledgeForge: Configurar API Key"
+      },
+      {
+        "command": "knowledgeforge.changeProvider",
+        "title": "KnowledgeForge: Cambiar Proveedor de IA"
+      },
+      {
+        "command": "knowledgeforge.showApiKeyInstructions",
+        "title": "KnowledgeForge: Cómo Obtener API Key"
+      },
+      {
+        "command": "knowledgeforge.refreshRoadmap",
+        "title": "KnowledgeForge: Refrescar Roadmap",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "knowledgeforge.showProjectStatus",
+        "title": "KnowledgeForge: Ver Estado del Proyecto"
+      },
+      {
+        "command": "knowledgeforge.showBadges",
+        "title": "KnowledgeForge: Ver Logros",
+        "icon": "$(badge)"
+      },
+      {
+        "command": "knowledgeforge.showDashboard",
+        "title": "KnowledgeForge: Ver Dashboard"
+      },
+      {
+        "command": "knowledgeforge.reviewTask",
+        "title": "KnowledgeForge: Revisar Tarea con IA",
+        "icon": "$(sparkle)"
+      },
+      {
+        "command": "knowledgeforge.showCurrentTask",
+        "title": "KnowledgeForge: Ver Tarea Actual"
+      },
+      {
+        "command": "knowledgeforge.completeTask",
+        "title": "KnowledgeForge: Marcar Tarea como Completada"
+      },
+      {
+        "command": "knowledgeforge.showLearningResources",
+        "title": "KnowledgeForge: Ver Guía de Estudio",
+        "icon": "$(book)"
+      },
+      {
+        "command": "knowledgeforge.explainCode",
+        "title": "KnowledgeForge: Explicar este código"
+      },
+      {
+        "command": "knowledgeforge.createRoadmap",
+        "title": "KnowledgeForge: Crear Nuevo Roadmap"
+      },
+      {
+        "command": "knowledgeforge.listRoadmaps",
+        "title": "KnowledgeForge: Listar Roadmaps"
+      },
+      {
+        "command": "knowledgeforge.cloneRoadmap",
+        "title": "KnowledgeForge: Clonar Roadmap"
+      },
+      {
+        "command": "knowledgeforge.renameRoadmap",
+        "title": "KnowledgeForge: Renombrar Roadmap"
+      },
+      {
+        "command": "knowledgeforge.deleteRoadmap",
+        "title": "KnowledgeForge: Eliminar Roadmap"
+      },
+      {
+        "command": "knowledgeforge.generateNextPhase",
+        "title": "KnowledgeForge: Generar Siguientes Fases"
+      },
+      {
+        "command": "knowledgeforge.activateRoadmap",
+        "title": "KnowledgeForge: Activar Roadmap"
+      },
+      {
+        "command": "knowledgeforge.nextTask",
+        "title": "KnowledgeForge: Siguiente Tarea"
+      },
+      {
+        "command": "knowledgeforge.shareProgress",
+        "title": "KnowledgeForge: Compartir Progreso"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "knowledgeforge",
+          "title": "KnowledgeForge",
+          "icon": "$(mortar-board)"
+        }
+      ]
+    },
+    "views": {
+      "knowledgeforge": [
+        {
+          "id": "knowledgeforgeRoadmap",
+          "name": "Roadmap",
+          "icon": "media/icon.svg",
+          "contextualTitle": "KnowledgeForge Roadmap"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "knowledgeforge.refreshRoadmap",
+          "when": "view == knowledgeforgeRoadmap",
+          "group": "navigation"
+        },
+        {
+          "command": "knowledgeforge.createRoadmap",
+          "when": "view == knowledgeforgeRoadmap",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "knowledgeforge.reviewTask",
+          "when": "view == knowledgeforgeRoadmap && viewItem == task-pending",
+          "group": "inline"
+        },
+        {
+          "command": "knowledgeforge.completeTask",
+          "when": "view == knowledgeforgeRoadmap && viewItem == task-pending",
+          "group": "inline"
+        },
+        {
+          "command": "knowledgeforge.listRoadmaps",
+          "when": "view == knowledgeforgeRoadmap",
+          "group": "navigation"
+        },
+        {
+          "command": "knowledgeforge.cloneRoadmap",
+          "when": "view == knowledgeforgeRoadmap",
+          "group": "navigation"
+        },
+        {
+          "command": "knowledgeforge.renameRoadmap",
+          "when": "view == knowledgeforgeRoadmap",
+          "group": "navigation"
+        },
+        {
+          "command": "knowledgeforge.deleteRoadmap",
+          "when": "view == knowledgeforgeRoadmap",
+          "group": "navigation"
+        },
+        {
+          "command": "knowledgeforge.generateNextPhase",
+          "when": "view == knowledgeforgeRoadmap",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "when": "editorHasSelection",
+          "command": "knowledgeforge.explainCode",
+          "group": "knowledgeforge@1"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "KnowledgeForge",
+      "properties": {
+        "knowledgeforge.llmProvider": {
+          "type": "string",
+          "default": "deepseek",
+          "enum": [
+            "deepseek",
+            "gemini",
+            "openai"
+          ],
+          "enumDescriptions": [
+            "DeepSeek AI (Recomendado - Potente y económico)",
+            "Google Gemini AI (Free tier generoso)",
+            "OpenAI GPT"
+          ],
+          "description": "Proveedor de IA para análisis de CV y generación de roadmaps"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/node": "20.2.5",
+    "@types/vscode": "^1.80.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.8",
+    "@typescript-eslint/parser": "^5.59.8",
+    "eslint": "^8.56.0",
+    "typescript": "^5.1.3",
+    "@vscode/test-electron": "^2.3.2"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0"
+  }
+}
