@@ -27,6 +27,13 @@ export class TaskLearningPanel {
     private readonly _extensionUri: vscode.Uri;
     private readonly _context: vscode.ExtensionContext;
     private _disposables: vscode.Disposable[] = [];
+    private readonly _stepNames = [
+        '🎯 Entender el Objetivo',
+        '📚 Conceptos Clave',
+        '💡 Ejemplo Guiado',
+        '✍️ Tu Turno - Práctica',
+        '✅ Validación'
+    ];
     private _learningState: TaskLearningState;
 
     public static async createOrShow(
@@ -290,7 +297,7 @@ export class TaskLearningPanel {
             const timeoutMs = 60000; // 60 seconds
             
             // Inform user that content is being generated
-            this._panel.webview.postMessage({ 
+            this._panel.webview.postMessage({
                 type: 'status', 
                 message: 'Generando contenido... esto puede tomar hasta 60 segundos.' 
             });
@@ -314,6 +321,10 @@ export class TaskLearningPanel {
             this._learningState.cachedSteps[stepNumber] = stepContent;
             await IntelligentCacheService.set(cacheKey, stepContent);
             this._learningState.currentStep = stepNumber;
+
+            // Save content to file
+            const stepName = this._stepNames[stepNumber];
+            await this._saveStepContentToFile(stepNumber, stepName, stepContent, currentTask);
 
             this._panel.webview.postMessage({
                 type: 'stepLoaded',
@@ -379,24 +390,16 @@ export class TaskLearningPanel {
         const aiService = AIServiceFactory.createService(apiKey);
         const progress = ProjectStateService.getProgress(state);
 
-        const stepNames = [
-            '🎯 Entender el Objetivo',
-            '📚 Conceptos Clave',
-            '💡 Ejemplo Guiado',
-            '✍️ Tu Turno - Práctica',
-            '✅ Validación'
-        ];
-
         const prompt = this._buildStepPrompt(
             stepNumber,
             currentTask,
             progress,
-            stepNames
+            this._stepNames
         );
 
         try {
             const response = await aiService.generateContent(prompt);
-            return this._parseStepResponse(response, stepNumber, stepNames[stepNumber]);
+            return this._parseStepResponse(response, stepNumber, this._stepNames[stepNumber]);
         } catch (error) {
             console.error('Error generando contenido del paso:', error);
             throw error;
@@ -508,6 +511,114 @@ Responde en JSON con este formato (sin incluir los backticks de json en tu respu
 
 ${responseFormat}`;
 
+    }
+
+    private _formatContentToMarkdown(stepNumber: number, stepName: string, content: any): string {
+        let markdown = `## ${stepName}\n\n`;
+
+        try {
+            switch(stepNumber) {
+                case 0: // Entender el Objetivo
+                    markdown += `### ${content.title || 'Objetivo'}\n\n${content.description || ''}\n\n`;
+                    if (content.importance) {
+                        markdown += `**Importancia:** ${content.importance}\n\n`;
+                    }
+                    if (content.diagram) {
+                        markdown += `**Diagrama:**\n\
+\
+${content.diagram}\n\
+\
+`;
+                    }
+                    break;
+                case 1: // Conceptos Clave
+                    markdown += `${content.description || ''}\n\n`;
+                    if (content.concepts && content.concepts.length > 0) {
+                        content.concepts.forEach((c: any) => {
+                            markdown += `### ${c.name || 'Concepto'}\n\n${c.explanation || ''}\n\n`;
+                        });
+                    }
+                    break;
+                case 2: // Ejemplo Guiado
+                    if (content.plan && content.plan.length > 0) {
+                        markdown += `### Plan de Acción\n\n` + content.plan.map((p: string) => `- ${p}`).join('\n') + `\n\n`;
+                    }
+                    if (content.codeExample) {
+                        markdown += `### Ejemplo de Código\n\n\
+\
+typescript\n${content.codeExample}\n\
+\
+`;
+                    }
+                    break;
+                case 3: // Tu Turno - Práctica
+                    markdown += `### Ejercicio Práctico\n\n${content.task || ''}\n\n`;
+                    if (content.instructions && content.instructions.length > 0) {
+                        markdown += `**Instrucciones:**\n` + content.instructions.map((i: string) => `- ${i}`).join('\n') + `\n\n`;
+                    }
+                    break;
+                case 4: // Validación
+                    if (content.criteria && content.criteria.length > 0) {
+                        markdown += `### Criterios de Validación\n\n` + content.criteria.map((c: string) => `- ${c}`).join('\n') + `\n\n`;
+                    }
+                    break;
+                default:
+                    markdown += '```json\n' + JSON.stringify(content, null, 2) + '\n```\n\n';
+            }
+        } catch (e) {
+            // Fallback for any error or unexpected structure
+            markdown += '```json\n' + JSON.stringify(content, null, 2) + '\n```\n\n';
+        }
+
+        return markdown;
+    }
+
+    private async _saveStepContentToFile(
+        stepNumber: number,
+        stepName: string,
+        content: any,
+        currentTask: any
+    ) {
+        try {
+            const state = ProjectStateService.getState(this._context);
+            if (!state?.projectPath) {
+                console.warn('No se pudo guardar el contenido del paso: projectPath no está definido.');
+                return;
+            }
+    
+            const sanitize = (name: string) => name.replace(/[/\\?%*:|"<>]/g, '-').replace(/\s+/g, '_');
+    
+            const phaseDirName = `Fase_${currentTask.phaseIndex + 1}_${sanitize(currentTask.phase.title)}`;
+            const docsPath = path.join(state.projectPath, 'docs');
+            const phaseDir = path.join(docsPath, phaseDirName);
+    
+            if (!fs.existsSync(phaseDir)) {
+                fs.mkdirSync(phaseDir, { recursive: true });
+            }
+    
+            const taskFileName = `${sanitize(currentTask.task)}.md`;
+            const taskFile = path.join(phaseDir, taskFileName);
+    
+            const markdownContent = this._formatContentToMarkdown(stepNumber, stepName, content);
+    
+            const header = `# 📖 Guía de Aprendizaje: ${currentTask.task}\n\n**Fase:** ${currentTask.phase.title}\n\n---\n\n`;
+            
+            let fileContent = '';
+            if (fs.existsSync(taskFile)) {
+                fileContent = fs.readFileSync(taskFile, 'utf-8');
+            } else {
+                fileContent = header;
+            }
+    
+            // Append content only if it's not already there to avoid duplicates
+            if (!fileContent.includes(stepName)) {
+                fileContent += markdownContent;
+                fs.writeFileSync(taskFile, fileContent);
+            }
+    
+        } catch (error) {
+            console.error('Error guardando contenido del paso en archivo:', error);
+        }
     }
 
     private _getHtmlForWebview(currentTask?: any) {
@@ -769,8 +880,8 @@ ${responseFormat}`;
 </head>
 <body>
     <div class="header">
-        <h1>📚 ` + currentTask.phase.title + `</h1>
-        <p class="subtitle" id="task-info">` + currentTask.task + `</p>
+        <h1>📚 ${currentTask.phase.title}</h1>
+        <p class="subtitle" id="task-info">${currentTask.task}</p>
     </div>
 
     <div class="steps-container" id="steps-container">
@@ -818,13 +929,7 @@ ${responseFormat}`;
         const sendChatButton = document.getElementById('send-chat');
         
         // Step names
-        const stepNames = [
-            '🎯 Entender el Objetivo',
-            '📚 Conceptos Clave', 
-            '💡 Ejemplo Guiado',
-            '✍️ Tu Turno - Práctica',
-            '✅ Validación'
-        ];
+        const stepNames = ${JSON.stringify(this._stepNames)};
         
         // Initialize
         function init() {
@@ -1052,7 +1157,7 @@ ${responseFormat}`;
                                     '<pre>' + codeExample + '</pre>' +
                                 '</div>' +
                                 '<button onclick="openInSandbox()">Abrir en Sandbox</button>' +
-                                '<button onclick="completeStep(' + stepNumber + ')">Marcar como practicado</button>' +
+                                '<button onclick="completeStep(' + stepNumber + ')">Marcar como practicado</button>' + 
                             '</div>';
                         stepContent.innerHTML += '<button onclick="continueStep(' + stepNumber + ')">Continuar (más detalle)</button>';
                         // Save last code example so sandbox can open it
@@ -1098,7 +1203,7 @@ ${responseFormat}`;
                         stepContent.innerHTML += 
                                 '</ul>' +
                             '</div>' +
-                            '<button onclick="completeTask()">Marcar como validado</button>' +
+                            '<button onclick="completeTask()">Marcar como validado</button>' + 
                             '<button onclick="nextTask()">Siguiente tarea</button>';
             stepContent.innerHTML += '<button onclick="continueStep(' + stepNumber + ')">Continuar (más detalle)</button>';
                     }
@@ -1295,8 +1400,7 @@ ${responseFormat}`;
                 throw new Error('No hay tarea actual');
             }
 
-            const prompt = `Eres un mentor experto en programación. Un estudiante está trabajando en la tarea: "${currentTask.task}".
-            
+            const prompt = `Eres un mentor experto en programación. Un estudiante está trabajando en la tarea: "${currentTask.task}".            
 Pregunta del estudiante: ${question}
 
 Por favor, responde de forma clara y concisa.`;
