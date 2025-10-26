@@ -270,7 +270,17 @@ Evolucionar KnowledgeForge incorporando características de aprendizaje adaptati
 - Ejemplos de código más completos y explicativos
 - Recursos adicionales integrados
 
-**Estado**: 🟡 En Progreso
+**Estado**: 🟢 Completado
+
+**Nota**: Se han mejorado TODOS los prompts de IA en el sistema:
+- **Prompt principal de pasos** (`_buildStepPrompt`): Ahora solicita JSON estructurado con concepto, objetivos, contenido detallado, ejemplos, recursos, desafíos y código de ejemplo
+- **Prompt de chat AI** (`_handleAskAI`): Incluye respuesta directa, explicación conceptual con analogías, ejemplo práctico con código comentado, recursos adicionales y consejos para evitar errores
+- **Prompt de expansión de contenido** (`_handleContinueStep`): Solicita ejemplos avanzados, recursos adicionales, mejores prácticas, casos de uso reales y ejercicios opcionales
+- **Prompt de pista básica** (`_handleRequestHint`): Proporciona pista conceptual, preguntas guiadas, recursos relevantes y mini-ejemplos sin dar la solución completa
+- **Prompt de pista avanzada** (`_handleNextLevelHint`): Incluye explicación detallada, ejemplo parcial de código, pasos específicos, errores comunes y recursos avanzados
+- **Prompt de ayuda proactiva** (`_handleRequestHelp`): Ofrece introducción al paso, verificación de dudas, sugerencia inicial y motivación
+
+Todos los prompts ahora generan contenido educativo más rico, con ejemplos prácticos, recursos enlazados y formato Markdown estructurado.
 
 ---
 

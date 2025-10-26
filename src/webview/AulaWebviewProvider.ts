@@ -152,12 +152,30 @@ export class AulaWebviewProvider {
                                 return;
                             }
 
+                            // Enviar mensaje de inicio de generación
+                            this._panel.webview.postMessage({
+                                type: 'generatingRoadmap',
+                                message: 'Analizando tu experiencia y generando roadmap personalizado...'
+                            });
+
                             // Obtener la API key
                             const apiKey = await ConfigService.getApiKey(this._context);
-                            
+
+                            // Actualizar progreso
+                            this._panel.webview.postMessage({
+                                type: 'generatingProgress',
+                                message: 'Consultando con IA para crear el mejor plan de aprendizaje...'
+                            });
+
                             // Generar roadmap con IA
                             const roadmap = await RoadmapService.generateRoadmap(message.text, apiKey!);
-                            
+
+                            // Actualizar progreso final
+                            this._panel.webview.postMessage({
+                                type: 'generatingProgress',
+                                message: 'Finalizando y estructurando tu roadmap personalizado...'
+                            });
+
                             // Enviar respuesta al webview (coincide con el handler en el webview)
                             this._panel.webview.postMessage({
                                 type: 'roadmapGenerated',
@@ -575,7 +593,28 @@ Formato JSON: { "skills": ["..."], "goals": ["..."], "gaps": ["..."] }`;
             errorElement.style.display = 'none';
             analysisResults.style.display = 'none';
         }
-        
+
+        // Show generating progress with custom message
+        function showGeneratingProgress(message) {
+            loadingElement.style.display = 'block';
+            errorElement.style.display = 'none';
+            analysisResults.style.display = 'none';
+
+            // Update loading message
+            const loadingText = loadingElement.querySelector('p');
+            if (loadingText) {
+                loadingText.textContent = message;
+            }
+        }
+
+        // Update generating progress message
+        function updateGeneratingProgress(message) {
+            const loadingText = loadingElement.querySelector('p');
+            if (loadingText) {
+                loadingText.textContent = message;
+            }
+        }
+
         // Show error message
         function showError(message) {
             loadingElement.style.display = 'none';
@@ -666,19 +705,27 @@ Formato JSON: { "skills": ["..."], "goals": ["..."], "gaps": ["..."] }`;
         }
         
         // Handle messages from extension
-        window.addEventListener('message', event => {
+        window.addEventListener('message', function(event) {
             const message = event.data;
-            
+
             switch(message.type) {
                 case 'liveAnalysisResult':
                     updateLiveAnalysis(message.analysis);
                     break;
-                    
+
+                case 'generatingRoadmap':
+                    showGeneratingProgress(message.message);
+                    break;
+
+                case 'generatingProgress':
+                    updateGeneratingProgress(message.message);
+                    break;
+
                 case 'roadmapGenerated':
                     analysisData = message.roadmap;
                     showAnalysisResults(message.roadmap);
                     break;
-                    
+
                 case 'error':
                     showError(message.message);
                     break;

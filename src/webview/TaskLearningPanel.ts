@@ -451,63 +451,209 @@ export class TaskLearningPanel {
         }
 
         .chat-container {
-            background: var(--vscode-input-background);
-            border: 1px solid var(--vscode-input-border);
+            background: var(--vscode-editor-background);
+            border: 2px solid var(--vscode-panel-border);
             border-radius: 8px;
-            padding: 20px;
             margin-top: 20px;
+            position: sticky;
+            bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: var(--vscode-editor-selectionBackground);
+            border-bottom: 1px solid var(--vscode-panel-border);
+            border-radius: 8px 8px 0 0;
+        }
+
+        .chat-header h2 {
+            margin: 0;
+            font-size: 16px;
+            color: var(--vscode-foreground);
+        }
+
+        .chat-toggle {
+            background: transparent;
+            border: 1px solid var(--vscode-input-border);
+            color: var(--vscode-foreground);
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .chat-toggle:hover {
+            background: var(--vscode-button-hoverBackground);
+        }
+
+        .chat-body {
+            padding: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .chat-body.collapsed {
+            display: none;
+        }
+
+        .chat-welcome {
+            background: var(--vscode-textBlockQuote-background);
+            border-left: 4px solid var(--vscode-focusBorder);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        .chat-welcome p {
+            margin: 8px 0;
+        }
+
+        .chat-welcome ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .chat-welcome li {
+            margin: 5px 0;
         }
 
         .chat-messages {
+            min-height: 200px;
             max-height: 300px;
             overflow-y: auto;
             margin-bottom: 15px;
             padding: 10px;
             background: var(--vscode-editor-background);
+            border: 1px solid var(--vscode-panel-border);
             border-radius: 4px;
+        }
+
+        .chat-messages:empty {
+            display: none;
         }
 
         .chat-message {
             margin-bottom: 15px;
-            padding: 10px;
-            border-radius: 4px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            animation: slideIn 0.3s ease;
+            position: relative;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .chat-message.user {
-            background: var(--vscode-editor-selectionBackground);
-            margin-left: 20%;
+            background: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            margin-left: 15%;
+            text-align: right;
         }
 
         .chat-message.ai {
             background: var(--vscode-textBlockQuote-background);
-            margin-right: 20%;
-            border-left: 3px solid var(--vscode-focusBorder);
+            margin-right: 15%;
+            border-left: 4px solid var(--vscode-focusBorder);
+        }
+
+        .chat-message strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 11px;
+            opacity: 0.8;
         }
 
         .chat-input-container {
             display: flex;
             gap: 10px;
+            align-items: flex-end;
         }
 
-        .chat-input-container input {
+        .chat-input-container textarea {
             flex: 1;
             background: var(--vscode-input-background);
             color: var(--vscode-input-foreground);
-            border: 1px solid var(--vscode-input-border);
-            padding: 8px 12px;
-            border-radius: 4px;
+            border: 2px solid var(--vscode-input-border);
+            padding: 10px 12px;
+            border-radius: 6px;
             font-size: 13px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 60px;
+            max-height: 150px;
         }
 
-        .chat-input-container input:focus {
+        .chat-input-container textarea:focus {
             outline: none;
             border-color: var(--vscode-focusBorder);
+            box-shadow: 0 0 0 1px var(--vscode-focusBorder);
+        }
+
+        .chat-input-container button {
+            background: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            min-height: 60px;
+        }
+
+        .chat-input-container button:hover:not(:disabled) {
+            background: var(--vscode-button-hoverBackground);
+            transform: translateY(-1px);
+        }
+
+        .chat-input-container button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .send-icon {
+            font-size: 16px;
         }
 
         .loading {
             text-align: center;
             padding: 20px;
             color: var(--vscode-descriptionForeground);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .loading::after {
+            content: '';
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--vscode-descriptionForeground);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         .error {
@@ -543,6 +689,56 @@ export class TaskLearningPanel {
             background: var(--vscode-focusBorder);
             transition: width 0.3s ease;
         }
+
+        /* Chat typing indicator */
+        .typing-indicator {
+            opacity: 0.7;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background: var(--vscode-foreground);
+            border-radius: 50%;
+            display: inline-block;
+            animation: typingBounce 1.4s infinite ease-in-out both;
+        }
+
+        .typing-dots span:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes typingBounce {
+            0%, 80%, 100% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Improve input disabled state */
+        .chat-input-container input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .chat-input-container button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -576,11 +772,29 @@ export class TaskLearningPanel {
     </div>
 
     <div class="chat-container">
-        <h2 style="margin-bottom: 15px;">💬 Tutor AI</h2>
-        <div class="chat-messages" id="chatMessages"></div>
-        <div class="chat-input-container">
-            <input type="text" id="chatInput" placeholder="Hazle una pregunta al tutor..." />
-            <button onclick="sendMessage()">Enviar</button>
+        <div class="chat-header">
+            <h2>💬 Tutor AI</h2>
+            <button class="chat-toggle" onclick="toggleChat()" id="chatToggle">▼ Minimizar</button>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="chat-welcome" id="chatWelcome">
+                <p>👋 ¡Hola! Soy tu tutor personal de IA.</p>
+                <p>Puedo ayudarte con:</p>
+                <ul>
+                    <li>🤔 Explicar conceptos difíciles</li>
+                    <li>🐛 Resolver errores en tu código</li>
+                    <li>💡 Darte ideas y mejores prácticas</li>
+                    <li>📚 Sugerir recursos de aprendizaje</li>
+                </ul>
+                <p><strong>¿En qué puedo ayudarte?</strong></p>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input-container">
+                <textarea id="chatInput" placeholder="Escribe tu pregunta aquí... (Presiona Ctrl+Enter para enviar)" rows="3"></textarea>
+                <button onclick="sendMessage()" id="chatSendBtn">
+                    <span class="send-icon">📤</span> Enviar
+                </button>
+            </div>
         </div>
     </div>
 
@@ -596,7 +810,7 @@ export class TaskLearningPanel {
         let timers = {};
 
         // Handle step click
-        document.querySelectorAll('.step').forEach(step => {
+        document.querySelectorAll('.step').forEach(function(step) {
             step.addEventListener('click', function() {
                 if (!this.classList.contains('step-disabled')) {
                     const stepNumber = parseInt(this.dataset.step);
@@ -609,11 +823,15 @@ export class TaskLearningPanel {
             currentStepIndex = stepNumber;
 
             // Update visual states
-            document.querySelectorAll('.step').forEach((step, index) => {
+            document.querySelectorAll('.step').forEach(function(step, index) {
                 const content = document.getElementById('content-' + index);
                 if (index === stepNumber) {
                     step.classList.add('step-active');
-                    if (content) content.classList.add('visible');
+                    if (content) {
+                        content.classList.add('visible');
+                        // Show loading indicator
+                        content.innerHTML = '<div class="loading">⏳ Cargando contenido del paso...</div>';
+                    }
                 } else {
                     step.classList.remove('step-active');
                     if (content) content.classList.remove('visible');
@@ -654,27 +872,106 @@ export class TaskLearningPanel {
         }
 
         function requestHelp(stepNumber) {
+            // Show typing indicator in chat when requesting help
+            showTypingIndicator();
+            isProcessing = true;
+
+            // Disable chat input while processing
+            const input = document.getElementById('chatInput');
+            const sendButton = document.getElementById('chatSendBtn');
+            if (input) input.disabled = true;
+            if (sendButton) sendButton.disabled = true;
+
             vscode.postMessage({ type: 'requestHelp', stepNumber: stepNumber });
         }
 
+        let isProcessing = false;
+        let typingIndicator = null;
+
         function sendMessage() {
             const input = document.getElementById('chatInput');
+            const sendButton = document.getElementById('chatSendBtn');
             const message = input.value.trim();
 
-            if (message) {
+            if (message && !isProcessing) {
+                isProcessing = true;
+
+                // Add user message immediately
                 addChatMessage('user', message);
-                vscode.postMessage({ type: 'askAI', question: message });
+
+                // Clear input immediately for better UX
                 input.value = '';
+
+                // Adjust textarea height back to original
+                input.style.height = 'auto';
+
+                // Disable input and button while processing
+                input.disabled = true;
+                if (sendButton) sendButton.disabled = true;
+
+                // Show typing indicator
+                showTypingIndicator();
+
+                // Send message to extension
+                vscode.postMessage({ type: 'askAI', question: message });
+            }
+        }
+
+        function showTypingIndicator() {
+            const chatMessages = document.getElementById('chatMessages');
+            typingIndicator = document.createElement('div');
+            typingIndicator.className = 'chat-message ai typing-indicator';
+            typingIndicator.innerHTML = '<div class="typing-dots"><span>.</span><span>.</span><span>.</span></div>';
+            typingIndicator.id = 'typing-indicator';
+            chatMessages.appendChild(typingIndicator);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            if (typingIndicator && typingIndicator.parentNode) {
+                typingIndicator.parentNode.removeChild(typingIndicator);
+                typingIndicator = null;
             }
         }
 
         function addChatMessage(role, message) {
             const chatMessages = document.getElementById('chatMessages');
+            const chatWelcome = document.getElementById('chatWelcome');
             const messageDiv = document.createElement('div');
             messageDiv.className = 'chat-message ' + role;
-            messageDiv.innerHTML = message.replace(/\\n/g, '<br>');
+
+            // Hide welcome message on first message
+            if (chatWelcome && chatWelcome.style.display !== 'none') {
+                chatWelcome.style.display = 'none';
+            }
+
+            // Add role label
+            const roleLabel = role === 'user' ? 'Tú' : 'Tutor AI';
+            const labelHtml = '<strong>' + roleLabel + '</strong>';
+
+            // Handle markdown-style formatting
+            let formattedMessage = message
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')  // Bold
+                .replace(/\*(.+?)\*/g, '<em>$1</em>')  // Italic
+                .replace(/\`\`\`([\\s\\S]+?)\`\`\`/g, '<pre><code>$1</code></pre>')  // Code blocks
+                .replace(/\`(.+?)\`/g, '<code>$1</code>')  // Inline code
+                .replace(/\\n/g, '<br>');  // Line breaks
+
+            messageDiv.innerHTML = labelHtml + formattedMessage;
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Re-enable input after AI response
+            if (role === 'ai') {
+                const input = document.getElementById('chatInput');
+                const sendButton = document.getElementById('chatSendBtn');
+                if (input) {
+                    input.disabled = false;
+                    input.focus();
+                }
+                if (sendButton) sendButton.disabled = false;
+                isProcessing = false;
+            }
         }
 
         function completeTask() {
@@ -689,15 +986,30 @@ export class TaskLearningPanel {
             vscode.postMessage({ type: 'closePanel' });
         }
 
-        // Handle Enter key in chat input
-        document.getElementById('chatInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
+        // Toggle chat visibility
+        function toggleChat() {
+            const chatBody = document.getElementById('chatBody');
+            const chatToggle = document.getElementById('chatToggle');
+
+            if (chatBody.classList.contains('collapsed')) {
+                chatBody.classList.remove('collapsed');
+                chatToggle.textContent = '▼ Minimizar';
+            } else {
+                chatBody.classList.add('collapsed');
+                chatToggle.textContent = '▲ Expandir';
+            }
+        }
+
+        // Handle Ctrl+Enter to send message in textarea
+        document.getElementById('chatInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                e.preventDefault();
                 sendMessage();
             }
         });
 
         // Handle messages from extension
-        window.addEventListener('message', event => {
+        window.addEventListener('message', function(event) {
             const message = event.data;
 
             try {
@@ -709,10 +1021,21 @@ export class TaskLearningPanel {
                         completeStep(message.stepNumber);
                         break;
                     case 'chatResponse':
+                        hideTypingIndicator();
                         addChatMessage('ai', message.response);
                         break;
                     case 'error':
+                        hideTypingIndicator();
                         displayError(message.message);
+                        // Re-enable input on error
+                        const input = document.getElementById('chatInput');
+                        const sendButton = document.getElementById('chatSendBtn');
+                        if (input) {
+                            input.disabled = false;
+                            input.focus();
+                        }
+                        if (sendButton) sendButton.disabled = false;
+                        isProcessing = false;
                         break;
                     case 'taskInfo':
                         console.log('Task info:', message.info);
@@ -757,7 +1080,7 @@ export class TaskLearningPanel {
         }
 
         function formatKey(key) {
-            return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+            return key.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) { return str.toUpperCase(); });
         }
 
         function formatValue(value) {
@@ -768,7 +1091,7 @@ export class TaskLearningPanel {
                 }
                 return '<p>' + value + '</p>';
             } else if (Array.isArray(value)) {
-                return '<ul>' + value.map(item => '<li>' + formatValue(item) + '</li>').join('') + '</ul>';
+                return '<ul>' + value.map(function(item) { return '<li>' + formatValue(item) + '</li>'; }).join('') + '</ul>';
             } else if (typeof value === 'object') {
                 let html = '';
                 for (const [k, v] of Object.entries(value)) {
@@ -791,7 +1114,7 @@ export class TaskLearningPanel {
             errorDiv.textContent = message;
             document.body.insertBefore(errorDiv, document.body.firstChild);
 
-            setTimeout(() => errorDiv.remove(), 5000);
+            setTimeout(function() { errorDiv.remove(); }, 5000);
         }
 
         function showLoading() {
@@ -802,7 +1125,7 @@ export class TaskLearningPanel {
         }
 
         // Load first step automatically
-        setTimeout(() => loadStep(0), 500);
+        setTimeout(function() { loadStep(0); }, 500);
     </script>
 </body>
 </html>
@@ -841,9 +1164,19 @@ export class TaskLearningPanel {
 
     private async _handleAskAI(question: string) {
         try {
+            // Immediate validation
+            if (!question || question.trim().length === 0) {
+                throw new Error('La pregunta no puede estar vacía');
+            }
+
             const state = ProjectStateService.getState(this._context);
             if (!state) {
                 throw new Error('No hay estado de proyecto disponible');
+            }
+
+            const currentTask = ProjectStateService.getCurrentTask(state);
+            if (!currentTask) {
+                throw new Error('No hay tarea actual');
             }
 
             const apiKey = await ConfigService.getApiKey(this._context);
@@ -851,29 +1184,41 @@ export class TaskLearningPanel {
                 throw new Error('No hay API key configurada');
             }
 
+            // Create AI service and generate response with timeout
             const aiService = AIServiceFactory.createService(apiKey);
-            const currentTask = ProjectStateService.getCurrentTask(state);
-            
-            if (!currentTask) {
-                throw new Error('No hay tarea actual');
-            }
 
-            const prompt = `Eres un mentor experto en programación. Un estudiante está trabajando en la tarea: "${currentTask.task}".            
-Pregunta del estudiante: ${question}
+            // Simplified prompt for faster responses
+            const prompt = `Eres un mentor experto en programación. Un estudiante trabajando en "${currentTask.task}" pregunta:
 
-Por favor, responde de forma clara y concisa.`;
+"${question}"
 
-            const response = await aiService.generateContent(prompt);
+Responde de forma clara y concisa (máximo 200 palabras) con:
+- Respuesta directa
+- Ejemplo práctico si aplica
+- Un consejo clave
+
+Usa Markdown. Sé educativo y amigable.`;
+
+            // Set timeout for AI response (30 seconds)
+            const timeoutPromise = new Promise<never>((_, reject) =>
+                setTimeout(() => reject(new Error('La respuesta está tomando demasiado tiempo. Por favor, intenta de nuevo.')), 30000)
+            );
+
+            const responsePromise = aiService.generateContent(prompt);
+            const response = await Promise.race([responsePromise, timeoutPromise]);
 
             this._panel.webview.postMessage({
                 type: 'chatResponse',
                 response: response
             });
         } catch (error) {
+            console.error('[TaskLearningPanel] Error in _handleAskAI:', error);
             const errorMessage = error instanceof Error ? error.message : String(error);
+
+            // Send error to webview to hide typing indicator
             this._panel.webview.postMessage({
-                type: 'error',
-                message: `Error al obtener respuesta: ${errorMessage}`
+                type: 'chatResponse',
+                response: `❌ **Error**: ${errorMessage}\n\nPor favor, intenta de nuevo o reformula tu pregunta.`
             });
         }
     }
@@ -1086,12 +1431,35 @@ Por favor, responde de forma clara y concisa.`;
             const existingContent = this._learningState.cachedSteps[stepNumber] || {};
             
             // Build a prompt asking to expand the existing step content
-            const prompt = `Expande y enriquece el contenido del paso ${stepNumber + 1} para la tarea "${currentTask.task}". 
+            const prompt = `Eres un educador experto. Expande y enriquece el contenido del paso ${stepNumber + 1} ("${this._stepNames[stepNumber]}") para la tarea "${currentTask.task}".
+
 El contenido actual es:
 ${JSON.stringify(existingContent, null, 2)}
 
-Proporciona más ejemplos, recursos, explicaciones y pasos accionables. Asegúrate de incluir información adicional que complemente el contenido existente, no que lo reemplace. 
-Responde en JSON apropiado para el tipo de paso, manteniendo la estructura existente pero añadiendo más detalles.`;
+**Objetivo**: Proporcionar contenido educativo MÁS PROFUNDO y DETALLADO que complemente (NO reemplace) el contenido existente.
+
+Por favor, añade:
+1. **Más ejemplos prácticos**: Al menos 2-3 ejemplos de código adicionales con diferentes casos de uso
+2. **Recursos adicionales**: Enlaces a documentación oficial, tutoriales recomendados, artículos relevantes
+3. **Explicaciones más profundas**: Detalles sobre el "por qué" y "cómo funciona internamente"
+4. **Mejores prácticas**: Patrones recomendados y antipatrones a evitar
+5. **Ejercicios opcionales**: Desafíos adicionales para practicar
+6. **Casos de uso reales**: Ejemplos de aplicación en proyectos del mundo real
+
+Responde SOLO con JSON válido manteniendo la estructura:
+{
+  "concepto": "...",
+  "objetivos": [...],
+  "contenido": "...",
+  "ejemplos": [...],
+  "ejemplosAvanzados": [...],  // NUEVO
+  "recursos": [...],
+  "recursosAdicionales": [...],  // NUEVO
+  "desafios": [...],
+  "mejoresPracticas": [...],  // NUEVO
+  "casosDeUso": [...],  // NUEVO
+  "codigoEjemplo": "..."
+}`;
 
             this._panel.webview.postMessage({ type: 'status', message: 'Generando contenido adicional...' });
 
@@ -1274,12 +1642,25 @@ Sé específico sobre conceptos clave, posibles dificultades y cómo superarlas.
             }
 
             // Create a prompt for the AI tutor to provide a hint
-            const prompt = this._buildStepPrompt(
+            const basePrompt = this._buildStepPrompt(
                 message.stepNumber,
                 currentTask,
                 ProjectStateService.getProgress(state),
                 this._stepNames
-            ) + '\n\nAdemás, por favor proporciona un consejo educativo específico sobre este paso.';
+            );
+
+            const prompt = `${basePrompt}
+
+**IMPORTANTE**: El estudiante ha solicitado un CONSEJO o PISTA para este paso.
+
+Por favor, proporciona:
+1. **Pista Conceptual**: Una dirección general sobre qué pensar o considerar (sin dar la solución completa)
+2. **Pregunta Guiada**: Hazle preguntas al estudiante que lo ayuden a descubrir la solución por sí mismo
+3. **Recurso Relevante**: Sugiérele dónde puede investigar más sobre este tema
+4. **Mini-Ejemplo**: Un ejemplo muy simple que ilustre el concepto básico
+
+NO des la solución completa. El objetivo es guiar al estudiante para que aprenda por sí mismo.
+Responde en Markdown con formato claro.`;
 
             const response = await aiService.generateContent(prompt);
 
@@ -1319,13 +1700,27 @@ Sé específico sobre conceptos clave, posibles dificultades y cómo superarlas.
                 throw new Error('No hay tarea actual');
             }
 
-            // Create a prompt for the AI tutor to provide a hint
-            const prompt = this._buildStepPrompt(
+            // Create a prompt for the AI tutor to provide a next level hint
+            const basePrompt = this._buildStepPrompt(
                 message.stepNumber,
                 currentTask,
                 ProjectStateService.getProgress(state),
                 this._stepNames
-            ) + '\n\nAdemás, por favor proporciona un consejo educativo de nivel superior específico sobre este paso.';
+            );
+
+            const prompt = `${basePrompt}
+
+**IMPORTANTE**: El estudiante ha solicitado una PISTA DE NIVEL SUPERIOR (más detallada).
+
+Por favor, proporciona:
+1. **Explicación Más Detallada**: Profundiza en el concepto específico de este paso
+2. **Ejemplo Parcial de Código**: Muestra un fragmento de código que ilustre la dirección correcta (NO la solución completa)
+3. **Pasos Específicos**: Una lista de mini-pasos que el estudiante puede seguir
+4. **Errores Comunes**: Advierte sobre los errores más frecuentes en este paso
+5. **Recursos Avanzados**: Enlaces a documentación más técnica o artículos relevantes
+
+Puedes dar más información que en una pista básica, pero aún NO des la solución completa.
+Responde en Markdown con formato claro y secciones bien definidas.`;
 
             const response = await aiService.generateContent(prompt);
 
@@ -1374,13 +1769,25 @@ Sé específico sobre conceptos clave, posibles dificultades y cómo superarlas.
                 throw new Error('No hay tarea actual');
             }
 
-            // Create a prompt for the AI tutor to provide help
-            const prompt = this._buildStepPrompt(
+            // Create a prompt for the AI tutor to provide help proactively
+            const basePrompt = this._buildStepPrompt(
                 stepNumber,
                 currentTask,
                 ProjectStateService.getProgress(state),
                 this._stepNames
-            ) + '\n\nAdemás, por favor proporciona ayuda adicional específica sobre este paso.';
+            );
+
+            const prompt = `${basePrompt}
+
+**CONTEXTO**: El estudiante acaba de comenzar este paso. Como tutor proactivo, ofrece ayuda inicial.
+
+Por favor, proporciona un mensaje de bienvenida amigable que incluya:
+1. **Introducción al Paso**: Una breve descripción de qué aprenderá en este paso (1-2 oraciones)
+2. **Pregunta de Verificación**: Pregunta si el estudiante tiene alguna duda o necesita aclaración antes de comenzar
+3. **Sugerencia Inicial**: Un consejo útil para abordar este paso de manera efectiva
+4. **Motivación**: Una nota motivacional sobre por qué este paso es importante
+
+Sé breve (máximo 4-5 oraciones), amigable y motivador. Usa Markdown con emojis apropiados.`;
 
             const response = await aiService.generateContent(prompt);
 
