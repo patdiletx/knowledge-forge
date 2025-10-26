@@ -19,6 +19,13 @@ import { SoundManager } from './ui/SoundManager';
 import { ProjectStatusWebview } from './webview/ProjectStatusWebview';
 import { BadgesWebview } from './webview/BadgesWebview';
 import { DashboardWebview } from './webview/DashboardWebview';
+import { AssessmentWebview } from './webview/AssessmentWebview';
+import { MicroLearningService } from './services/MicroLearningService';
+import { EducationalHintsService } from './services/EducationalHintsService';
+import { LearningAnalyticsPanel } from './webview/LearningAnalyticsPanel';
+import { SpacedRepetitionPanel } from './webview/SpacedRepetitionPanel';
+import { GamificationPanel } from './webview/GamificationPanel';
+import { CommunitySolutionsPanel } from './webview/CommunitySolutionsPanel';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('KnowledgeForge está activa!');
@@ -148,6 +155,11 @@ export function activate(context: vscode.ExtensionContext) {
         await ConfigService.changeProvider(context);
     });
 
+    // Comando para iniciar la evaluación adaptativa
+    const startAdaptiveAssessmentCommand = vscode.commands.registerCommand('knowledgeforge.startAdaptiveAssessment', async () => {
+        AssessmentWebview.createOrShow(context.extensionUri, context);
+    });
+
     // Comando para mostrar instrucciones de API Key
     const showApiKeyInstructionsCommand = vscode.commands.registerCommand('knowledgeforge.showApiKeyInstructions', () => {
         const instructions = ConfigService.getApiKeyInstructions();
@@ -160,14 +172,21 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     // Comando para generar un roadmap a partir de CV / texto y crear el proyecto
-    const generateRoadmapCommand = vscode.commands.registerCommand('knowledgeforge.generateRoadmap', async () => {
-        // Preguntar por el texto del CV (o pegar)
-        const experienceText = await vscode.window.showInputBox({
-            prompt: 'Pega tu CV o describe tu experiencia profesional (puedes escribir o pegar un texto largo)',
-            placeHolder: 'Ej: 3 años como desarrollador Node.js, 1 año usando React, experiencia en APIs REST, etc.',
-            ignoreFocusOut: true,
-            validateInput: (v) => (v && v.trim().length > 10) ? null : 'Escribe al menos 10 caracteres para que el análisis sea útil'
-        });
+    const generateRoadmapCommand = vscode.commands.registerCommand('knowledgeforge.generateRoadmap', async (skillSummary?: string) => {
+        let experienceText: string | undefined;
+        
+        if (skillSummary) {
+            // If we have a skill summary from the assessment, use it directly
+            experienceText = skillSummary;
+        } else {
+            // Preguntar por el texto del CV (o pegar)
+            experienceText = await vscode.window.showInputBox({
+                prompt: 'Pega tu CV o describe tu experiencia profesional (puedes escribir o pegar un texto largo)',
+                placeHolder: 'Ej: 3 años como desarrollador Node.js, 1 año usando React, experiencia en APIs REST, etc.',
+                ignoreFocusOut: true,
+                validateInput: (v) => (v && v.trim().length > 10) ? null : 'Escribe al menos 10 caracteres para que el análisis sea útil'
+            });
+        }
 
         if (!experienceText) {
             return;
@@ -413,7 +432,8 @@ export function activate(context: vscode.ExtensionContext) {
                     // Mostrar en un documento nuevo (Markdown)
                     const doc = await vscode.workspace.openTextDocument({
                         content: guide,
-                        language: 'markdown'
+                        language: '``'
+
                     });
                     await vscode.window.showTextDocument(doc, { preview: false });
                 } catch (error) {
@@ -423,93 +443,51 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    // Comando para navegar a la siguiente tarea
-    const nextTaskCommand = vscode.commands.registerCommand('knowledgeforge.nextTask', async () => {
-        const state = ProjectStateService.getState(context);
-        if (!state) {
-            vscode.window.showInformationMessage('No hay proyecto activo');
-            return;
-        }
-
-        const currentTask = ProjectStateService.getCurrentTask(state);
-        if (!currentTask) {
-            // Todas las tareas completadas
-            vscode.window.showInformationMessage('🎉 ¡Felicidades! Has completado todas las tareas del roadmap.');
-            
-            // Actualizar UI
-            roadmapTreeProvider.refresh();
-            StatusBarManager.update(context);
-            return;
-        }
-
-        // Actualizar a la siguiente tarea
-        const hasNext = await ProjectStateService.moveToNextTask(context);
+    // Comando para mostrar estadísticas de micro-aprendizaje
+    const showMicroLearningStatsCommand = vscode.commands.registerCommand('knowledgeforge.showMicroLearningStats', async () => {
+        const stats = MicroLearningService.getLearningStatistics(context);
         
-        if (hasNext) {
-            const newState = ProjectStateService.getState(context);
-            const nextTask = ProjectStateService.getCurrentTask(newState!);
-            
-            if (nextTask) {
-                vscode.window.showInformationMessage(`➡️ Navegando a la siguiente tarea: ${nextTask.task}`);
-                
-                // Cerrar el panel de aprendizaje si está abierto
-                TaskLearningPanel.currentPanel?.dispose();
-                
-                // Actualizar UI
-                roadmapTreeProvider.refresh();
-                StatusBarManager.update(context);
-            }
+        const message = `
+📊 **Estadísticas de Micro-Aprendizaje**
+
+**Sesiones:** ${stats.totalSessions}
+**Lecciones Completadas:** ${stats.completedLessons}/${stats.totalLessons} (${stats.totalLessons > 0 ? Math.round((stats.completedLessons / stats.totalLessons) * 100) : 0}%)
+**Tiempo Promedio por Lección:** ${stats.averageTimePerLesson.toFixed(1)} minutos
+        `.trim();
+        
+        vscode.window.showInformationMessage(message, { modal: true });
+    });
+
+    // Comando para solicitar una pista educativa
+    const requestEducationalHintCommand = vscode.commands.registerCommand('knowledgeforge.requestEducationalHint', async () => {
+        // In a real implementation, this would determine the context and provide relevant hints
+        const hints = EducationalHintsService.getHints(context, 1);
+        if (hints.length > 0) {
+            const hint = hints[0];
+            await EducationalHintsService.showProgressiveHint(context, hint);
+        } else {
+            vscode.window.showInformationMessage('No hay pistas disponibles en este momento.');
         }
     });
 
-    // Comando para marcar tarea como completada manualmente
-    const completeTaskCommand = vscode.commands.registerCommand('knowledgeforge.completeTask', async () => {
-        const state = ProjectStateService.getState(context);
-        if (!state || !state.projectInitialized) {
-            vscode.window.showWarningMessage('No hay un proyecto activo.');
-            return;
-        }
-
-        const currentTask = ProjectStateService.getCurrentTask(state);
-        if (!currentTask) {
-            vscode.window.showInformationMessage('No hay más tareas pendientes.');
-            return;
-        }
-
-        const confirm = await vscode.window.showQuickPick(['Sí', 'No'], {
-            placeHolder: `¿Marcar como completada: "${currentTask.task}"?`
-        });
-
-        if (confirm === 'Sí') {
-            const hasNext = await ProjectStateService.completeCurrentTask(context, 'Marcada manualmente como completada');
-
-            // Check for newly unlocked badges
-            const newBadges = await BadgesService.checkAndUnlockBadges(context);
-
-            if (hasNext) {
-                const newState = ProjectStateService.getState(context);
-                if (newState) {
-                    const nextTask = ProjectStateService.getCurrentTask(newState);
-                    if (nextTask) {
-                        vscode.window.showInformationMessage(`✅ Tarea completada! Siguiente: ${nextTask.task}`);
-                    }
-                }
-            } else {
-                vscode.window.showInformationMessage('🎉 ¡Todas las tareas completadas!');
-            }
-
-            roadmapTreeProvider.refresh();
-        }
+    // Comando para mostrar el panel de analytics de aprendizaje
+    const showLearningAnalyticsCommand = vscode.commands.registerCommand('knowledgeforge.showLearningAnalytics', () => {
+        LearningAnalyticsPanel.createOrShow(context.extensionUri, context);
     });
-
-    const explainCodeCommand = vscode.commands.registerCommand('knowledgeforge.explainCode', () => {
-        const editor = vscode.window.activeTextEditor;
-        if (editor && editor.selection) {
-            const selectedText = editor.document.getText(editor.selection);
-            if (selectedText) {
-                TaskLearningPanel.currentPanel?.postCodeToExplain(selectedText);
-            }
-        }
+    
+    // Comando para mostrar el panel de repetición espaciada
+    const showSpacedRepetitionCommand = vscode.commands.registerCommand('knowledgeforge.showSpacedRepetition', () => {
+        SpacedRepetitionPanel.createOrShow(context.extensionUri, context);
+    });
+    
+    // Comando para mostrar el panel de gamificación
+    const showGamificationCommand = vscode.commands.registerCommand('knowledgeforge.showGamification', () => {
+        GamificationPanel.createOrShow(context.extensionUri, context);
+    });
+    
+    // Comando para mostrar el panel de soluciones comunitarias
+    const showCommunitySolutionsCommand = vscode.commands.registerCommand('knowledgeforge.showCommunitySolutions', (taskId?: string, roadmapId?: string) => {
+        CommunitySolutionsPanel.createOrShow(context.extensionUri, context, taskId, roadmapId);
     });
 
     context.subscriptions.push(
@@ -527,8 +505,13 @@ export function activate(context: vscode.ExtensionContext) {
         reviewTaskCommand,
         showCurrentTaskCommand,
         showLearningResourcesCommand,
-        completeTaskCommand,
-        explainCodeCommand
+        showMicroLearningStatsCommand,
+        requestEducationalHintCommand,
+        startAdaptiveAssessmentCommand,
+        showLearningAnalyticsCommand,
+        showSpacedRepetitionCommand,
+        showGamificationCommand,
+        showCommunitySolutionsCommand
     );
 
     // Comando para compartir/exportar el progreso del roadmap activo

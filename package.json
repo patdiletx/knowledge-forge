@@ -1,32 +1,32 @@
 {
   "name": "knowledge-forge",
   "displayName": "KnowledgeForge",
-  "description": "Tu Aula del Conocimiento personal - Genera roadmaps personalizados basados en tu CV",
+  "description": "Sistema de aprendizaje personalizado para desarrollo de software",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.85.0"
+    "vscode": "^1.74.0"
   },
   "categories": [
     "Education",
     "Other"
   ],
   "activationEvents": [
+    "onStartupFinished",
     "onCommand:knowledgeforge.openAula",
     "onCommand:knowledgeforge.openLearningMode",
     "onCommand:knowledgeforge.configureApiKey",
-    "onCommand:knowledgeforge.changeProvider",
-    "onCommand:knowledgeforge.showApiKeyInstructions",
+    "onCommand:knowledgeforge.generateRoadmap",
     "onCommand:knowledgeforge.refreshRoadmap",
     "onCommand:knowledgeforge.showProjectStatus",
     "onCommand:knowledgeforge.showBadges",
     "onCommand:knowledgeforge.showDashboard",
     "onCommand:knowledgeforge.reviewTask",
     "onCommand:knowledgeforge.showCurrentTask",
-    "onCommand:knowledgeforge.completeTask",
     "onCommand:knowledgeforge.showLearningResources",
+    "onCommand:knowledgeforge.completeTask",
     "onCommand:knowledgeforge.explainCode",
-    "onCommand:knowledgeforge.createRoadmap",
     "onCommand:knowledgeforge.listRoadmaps",
+    "onCommand:knowledgeforge.createRoadmap",
     "onCommand:knowledgeforge.cloneRoadmap",
     "onCommand:knowledgeforge.renameRoadmap",
     "onCommand:knowledgeforge.deleteRoadmap",
@@ -34,11 +34,53 @@
     "onCommand:knowledgeforge.activateRoadmap",
     "onCommand:knowledgeforge.nextTask",
     "onCommand:knowledgeforge.shareProgress",
+    "onCommand:knowledgeforge.startAdaptiveAssessment",
+    "onCommand:knowledgeforge.showMicroLearningStats",
+    "onCommand:knowledgeforge.requestEducationalHint",
+    "onCommand:knowledgeforge.showLearningAnalytics",
+    "onCommand:knowledgeforge.showSpacedRepetition",
+    "onCommand:knowledgeforge.showGamification",
+    "onCommand:knowledgeforge.showCommunitySolutions",
     "onView:knowledgeforgeRoadmap"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
+      {
+        "command": "knowledgeforge.startAdaptiveAssessment",
+        "title": "KnowledgeForge: Iniciar Evaluación Adaptativa",
+        "icon": "$(beaker)"
+      },
+      {
+        "command": "knowledgeforge.showMicroLearningStats",
+        "title": "KnowledgeForge: Ver Estadísticas de Micro-Aprendizaje",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "knowledgeforge.requestEducationalHint",
+        "title": "KnowledgeForge: Solicitar Pista Educativa",
+        "icon": "$(lightbulb)"
+      },
+      {
+        "command": "knowledgeforge.showLearningAnalytics",
+        "title": "KnowledgeForge: Abrir Panel de Analytics de Aprendizaje",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "knowledgeforge.showSpacedRepetition",
+        "title": "KnowledgeForge: Iniciar Sesión de Repaso Rápido",
+        "icon": "$(history)"
+      },
+      {
+        "command": "knowledgeforge.showGamification",
+        "title": "KnowledgeForge: Abrir Dashboard de Gamificación",
+        "icon": "$(symbol-event)"
+      },
+      {
+        "command": "knowledgeforge.showCommunitySolutions",
+        "title": "KnowledgeForge: Abrir Soluciones Comunitarias",
+        "icon": "$(organization)"
+      },
       {
         "command": "knowledgeforge.openAula",
         "title": "KnowledgeForge: Abrir Aula"
@@ -53,12 +95,8 @@
         "title": "KnowledgeForge: Configurar API Key"
       },
       {
-        "command": "knowledgeforge.changeProvider",
-        "title": "KnowledgeForge: Cambiar Proveedor de IA"
-      },
-      {
-        "command": "knowledgeforge.showApiKeyInstructions",
-        "title": "KnowledgeForge: Cómo Obtener API Key"
+        "command": "knowledgeforge.generateRoadmap",
+        "title": "KnowledgeForge: Generar Roadmap Personalizado"
       },
       {
         "command": "knowledgeforge.refreshRoadmap",
@@ -88,25 +126,25 @@
         "title": "KnowledgeForge: Ver Tarea Actual"
       },
       {
-        "command": "knowledgeforge.completeTask",
-        "title": "KnowledgeForge: Marcar Tarea como Completada"
-      },
-      {
         "command": "knowledgeforge.showLearningResources",
         "title": "KnowledgeForge: Ver Guía de Estudio",
         "icon": "$(book)"
+      },
+      {
+        "command": "knowledgeforge.completeTask",
+        "title": "KnowledgeForge: Marcar Tarea como Completada"
       },
       {
         "command": "knowledgeforge.explainCode",
         "title": "KnowledgeForge: Explicar este código"
       },
       {
-        "command": "knowledgeforge.createRoadmap",
-        "title": "KnowledgeForge: Crear Nuevo Roadmap"
-      },
-      {
         "command": "knowledgeforge.listRoadmaps",
         "title": "KnowledgeForge: Listar Roadmaps"
+      },
+      {
+        "command": "knowledgeforge.createRoadmap",
+        "title": "KnowledgeForge: Crear Nuevo Roadmap"
       },
       {
         "command": "knowledgeforge.cloneRoadmap",
@@ -202,6 +240,11 @@
         },
         {
           "command": "knowledgeforge.generateNextPhase",
+          "when": "view == knowledgeforgeRoadmap",
+          "group": "navigation"
+        },
+        {
+          "command": "knowledgeforge.showLearningAnalytics",
           "when": "view == knowledgeforgeRoadmap",
           "group": "navigation"
         }
