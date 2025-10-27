@@ -111,22 +111,8 @@ KnowledgeForge es una extensión de VS Code que revoluciona tu forma de aprender
 ## 🚀 Inicio Rápido
 
 ### Paso 1: Instalar la extensión
-```bash
-# Clonar el repositorio
-git clone https://github.com/tu-usuario/knowledge-forge.git
-cd knowledge-forge
 
-# Instalar dependencias
-npm install
-
-# Compilar
-npm run compile
-
-# Abrir en VS Code en modo desarrollo
-code .
-
-# Presionar F5 para abrir ventana de desarrollo
-```
+Busca KnowledgeForge en VS Code Extensions
 
 ### Paso 2: Configurar API Key
 1. Presiona `Ctrl+Shift+P`
@@ -528,10 +514,9 @@ MIT License - Ve [LICENSE](LICENSE) para detalles.
 
 ## 📞 Soporte
 
-- **Issues:** https://github.com/tu-usuario/knowledge-forge/issues
+- **Issues:** https://github.com/patdiletx/knowledge-forge/issues
 - **Documentación:** Ver carpeta `docs/`
 - **Changelog:** Ver [CHANGELOG.md](CHANGELOG.md)
-- **Discord:** Coming soon!
 
 ---
 
