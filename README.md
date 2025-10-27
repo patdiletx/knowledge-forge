@@ -1,6 +1,6 @@
 # 🎓 KnowledgeForge
 
-**Tu Companion de Aprendizaje Adaptativo con IA - Inspirado en Google's Learn Your Way**
+**Tu Companion de Aprendizaje Adaptativo con IA**
 
 KnowledgeForge es una extensión de VS Code que revoluciona tu forma de aprender programación. No solo genera roadmaps personalizados basados en tu experiencia, sino que te acompaña con un sistema de aprendizaje adaptativo inteligente que incluye evaluaciones, micro-lecciones, analytics personales, gamificación y una comunidad de aprendizaje.
 
@@ -533,16 +533,6 @@ MIT License - Ve [LICENSE](LICENSE) para detalles.
 7. **Community Learning** - Aprendemos mejor juntos
 
 > "No es solo un roadmap, es tu companion de aprendizaje inteligente"
-
----
-
-## 🏆 Inspirado en:
-
-- **Google's Learn Your Way** - Aprendizaje adaptativo
-- **Duolingo** - Gamificación y micro-lecciones
-- **Anki** - Repetición espaciada
-- **GitHub Copilot** - IA como co-pilot
-- **Codecademy** - Aprendizaje interactivo
 
 ---
 

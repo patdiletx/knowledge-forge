@@ -2,7 +2,7 @@
   "name": "knowledge-forge",
   "displayName": "KnowledgeForge",
   "description": "Sistema de aprendizaje personalizado con IA para desarrollo de software. Roadmaps adaptativos, micro-lecciones, gamificación y analytics de progreso.",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "publisher": "knowledgeforge",
   "author": {
     "name": "Tu Nombre",
