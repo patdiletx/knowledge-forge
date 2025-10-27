@@ -26,6 +26,7 @@ import { LearningAnalyticsPanel } from './webview/LearningAnalyticsPanel';
 import { SpacedRepetitionPanel } from './webview/SpacedRepetitionPanel';
 import { GamificationPanel } from './webview/GamificationPanel';
 import { CommunitySolutionsPanel } from './webview/CommunitySolutionsPanel';
+import { AIServiceFactory } from './services/AIServiceFactory';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('KnowledgeForge está activa!');
@@ -470,6 +471,116 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    // Comando para completar una tarea
+    const completeTaskCommand = vscode.commands.registerCommand('knowledgeforge.completeTask', async () => {
+        const state = ProjectStateService.getState(context);
+        if (!state || !state.projectInitialized) {
+            vscode.window.showWarningMessage('No hay proyecto activo.');
+            return;
+        }
+
+        const currentTask = ProjectStateService.getCurrentTask(state);
+        if (!currentTask) {
+            vscode.window.showInformationMessage('No hay tarea actual para completar.');
+            return;
+        }
+
+        // Marcar tarea como completada
+        await ProjectStateService.completeCurrentTask(context);
+
+        // Actualizar UI
+        roadmapTreeProvider.refresh();
+        StatusBarManager.update(context);
+
+        // Notificación de éxito
+        const updatedState = ProjectStateService.getState(context);
+        const progress = ProjectStateService.getProgress(updatedState!);
+
+        vscode.window.showInformationMessage(
+            `¡Tarea completada! Progreso: ${progress.completed}/${progress.total} (${progress.percentage}%)`,
+            'Ver Siguiente',
+            'Ver Dashboard'
+        ).then(action => {
+            if (action === 'Ver Siguiente') {
+                vscode.commands.executeCommand('knowledgeforge.nextTask');
+            } else if (action === 'Ver Dashboard') {
+                vscode.commands.executeCommand('knowledgeforge.showDashboard');
+            }
+        });
+    });
+
+    // Comando para ir a la siguiente tarea
+    const nextTaskCommand = vscode.commands.registerCommand('knowledgeforge.nextTask', async () => {
+        const state = ProjectStateService.getState(context);
+        if (!state || !state.projectInitialized) {
+            vscode.window.showWarningMessage('No hay proyecto activo.');
+            return;
+        }
+
+        const currentTask = ProjectStateService.getCurrentTask(state);
+        if (!currentTask) {
+            vscode.window.showInformationMessage('No hay más tareas en el roadmap.');
+            return;
+        }
+
+        // Mostrar la tarea actual
+        vscode.commands.executeCommand('knowledgeforge.showCurrentTask');
+    });
+
+    // Comando para explicar código seleccionado
+    const explainCodeCommand = vscode.commands.registerCommand('knowledgeforge.explainCode', async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showWarningMessage('No hay editor activo.');
+            return;
+        }
+
+        const selection = editor.selection;
+        const selectedText = editor.document.getText(selection);
+
+        if (!selectedText) {
+            vscode.window.showWarningMessage('No hay código seleccionado.');
+            return;
+        }
+
+        // Verificar API Key
+        const hasApiKey = await ConfigService.hasApiKey(context);
+        if (!hasApiKey) {
+            const action = await vscode.window.showWarningMessage(
+                'Necesitas configurar una API Key para usar la función de explicación de código.',
+                'Configurar API Key'
+            );
+            if (action === 'Configurar API Key') {
+                await ConfigService.promptForApiKey(context);
+            }
+            return;
+        }
+
+        const apiKey = await ConfigService.getApiKey(context);
+        if (!apiKey) return;
+
+        await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: 'Analizando código...',
+            cancellable: false
+        }, async () => {
+            try {
+                const aiService = AIServiceFactory.createService(apiKey);
+                const prompt = `Explica el siguiente código de manera clara y concisa, indicando qué hace y cómo funciona:\n\n${selectedText}`;
+
+                const explanation = await aiService.generateContent(prompt);
+
+                // Mostrar explicación en un panel de información
+                vscode.window.showInformationMessage(
+                    explanation,
+                    { modal: true }
+                );
+            } catch (error) {
+                vscode.window.showErrorMessage(`Error al explicar código: ${error}`);
+            }
+        });
+    });
+
     // Comando para mostrar el panel de analytics de aprendizaje
     const showLearningAnalyticsCommand = vscode.commands.registerCommand('knowledgeforge.showLearningAnalytics', () => {
         LearningAnalyticsPanel.createOrShow(context.extensionUri, context);
@@ -507,6 +618,9 @@ export function activate(context: vscode.ExtensionContext) {
         showLearningResourcesCommand,
         showMicroLearningStatsCommand,
         requestEducationalHintCommand,
+        completeTaskCommand,
+        nextTaskCommand,
+        explainCodeCommand,
         startAdaptiveAssessmentCommand,
         showLearningAnalyticsCommand,
         showSpacedRepetitionCommand,

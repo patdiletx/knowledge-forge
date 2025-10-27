@@ -1,13 +1,51 @@
 {
   "name": "knowledge-forge",
   "displayName": "KnowledgeForge",
-  "description": "Sistema de aprendizaje personalizado para desarrollo de software",
-  "version": "0.0.1",
+  "description": "Sistema de aprendizaje personalizado con IA para desarrollo de software. Roadmaps adaptativos, micro-lecciones, gamificación y analytics de progreso.",
+  "version": "1.0.0",
+  "publisher": "knowledgeforge",
+  "author": {
+    "name": "Tu Nombre",
+    "email": "tu-email@example.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/patdiletx/knowledge-forge"
+  },
+  "bugs": {
+    "url": "https://github.com/patdiletx/knowledge-forge/issues"
+  },
+  "homepage": "https://github.com/patdiletx/knowledge-forge#readme",
+  "icon": "icon.png",
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
+  "keywords": [
+    "learning",
+    "education",
+    "roadmap",
+    "ai",
+    "personalized",
+    "adaptive",
+    "coding",
+    "programming",
+    "development",
+    "tutorial",
+    "training",
+    "gamification",
+    "analytics",
+    "micro-learning",
+    "skills",
+    "assessment"
+  ],
   "engines": {
-    "vscode": "^1.74.0"
+    "vscode": "^1.80.0"
   },
   "categories": [
     "Education",
+    "Machine Learning",
     "Other"
   ],
   "activationEvents": [
